@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: golang_app
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: myuser
+      DB_PASSWORD: mypassword
+      DB_NAME: secure_messaging
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
